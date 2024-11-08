@@ -1,17 +1,30 @@
 from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
+from dotenv import load_dotenv
+import os
+import openai
 
-# Uncomment the following line to use an example of a custom tool
-# from ai_cloud_team.tools.custom_tool import MyCustomTool
+# Load environment variables from .env file
+load_dotenv()
 
-# Check our tools documentations for more information on how to use them
-# from crewai_tools import SerperDevTool
+# Read the LLM choice from the environment variable
+llm_choice = os.getenv("LLM_CHOICE", "llama").lower()
 
-llm = LLM(
-	model="ollama/llama3.1",
-	base_url="http://localhost:11434"
-)
-
+# Configure LLM based on choice
+if llm_choice == "openai":
+    from langchain.llms import OpenAI
+    llm = OpenAI(
+        model_name=os.getenv("OPENAI_MODEL_NAME", "gpt-4o"),
+        temperature=0.7
+    )
+elif llm_choice == "llama":
+    llm = LLM(
+        model="ollama/llama3.1",
+        base_url="http://localhost:11434"
+    )
+# Add more LLM options here as needed
+else:
+    raise ValueError(f"Unsupported LLM choice: {llm_choice}")
 
 @CrewBase
 class AiCloudTeamCrew():
